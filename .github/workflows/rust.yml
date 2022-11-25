@@ -5,6 +5,10 @@ on:
     branches: [main]
 
 jobs:
+  # this will:
+  # create/update a CHANGELOG.md
+  # update the version in Cargo.toml
+  # tag the GH commit with a version
   release_please:
     name: Release Please
     runs-on: ubuntu-latest
@@ -13,7 +17,7 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: google-github-actions/release-please-action@v3
-        id: release
+        # id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: rust
@@ -88,10 +92,10 @@ jobs:
       - name: Setup | Artifacts
         uses: actions/download-artifact@v3
 
-      - name: Setup | Publish Release
-        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Setup | Publish Release
+      #   run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build | Add Artifacts to Release
         uses: softprops/action-gh-release@v1
