@@ -1,3 +1,12 @@
+# To use this:
+# 1. place this file in .github/workflows/release.yml
+# 2. Make commits to the main branch
+# 3. When ready to release, merge the PR
+#
+# Notes:
+# - Each time you commit, the PR is updated. You can commit multiple times
+#   before merging the PR and releasing.
+
 name: release
 
 on:
@@ -5,13 +14,14 @@ on:
     branches: [main]
 
 jobs:
-  # this will:
-  # 1. analyze commit history for "conventional commits" and determine the
-  #   "Semantic Version"
-  # 2. create/update a CHANGELOG.md
-  # 3. update the version in Cargo.toml
-  # 4. tag the GH commit with the version
   release_please:
+    # this will:
+    # 1. analyze commit history for "conventional commits" and determine the
+    #   "Semantic Version"
+    # 2. create/update a CHANGELOG.md
+    # 3. update the version in Cargo.toml
+    # 4. create a PR which includes the CHANGELOG.md and Cargo.toml and is tagged
+    #    with the version
     name: Release Please
     runs-on: ubuntu-latest
     outputs:
