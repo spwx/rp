@@ -5,44 +5,44 @@ on:
     branches: [main]
 
 jobs:
-  release_please:
-    name: Release Please
-    runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-    steps:
-      - uses: google-github-actions/release-please-action@v3
-        id: release
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          release-type: rust
-          draft: true
-      - name: Print tag
-        run: echo ${{ steps.release.outputs.tag_name }}
+  # release_please:
+  #   name: Release Please
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     release_created: ${{ steps.release.outputs.release_created }}
+  #     tag_name: ${{ steps.release.outputs.tag_name }}
+  #   steps:
+  #     - uses: google-github-actions/release-please-action@v3
+  #       id: release
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         release-type: rust
+  #         draft: true
+  #     - name: Print tag
+  #       run: echo ${{ steps.release.outputs.tag_name }}
 
   build:
     name: build-release
-    needs: release_please
-    if: ${{ needs.release_please.outputs.release_created == 'true' }}
+    # needs: release_please
+    # if: ${{ needs.release_please.outputs.release_created == 'true' }}
     runs-on: ${{ matrix.gh_runner_os }}
     strategy:
       # if one build fails, continue building the others
       fail-fast: false
       matrix:
         include:
-        - target: x86_64-unknown-linux-gnu
-          gh_runner_os: ubuntu-latest
-          builder: cargo
-        - target: aarch64-unknown-linux-gnu
-          gh_runner_os: ubuntu-latest
-          builder: cross
-        - target: x86_64-apple-darwin
-          gh_runner_os: macos-latest
-          builder: cargo
-        - target: aarch64-apple-darwin
-          gh_runner_os: macos-latest
-          builder: cargo
+        # - target: x86_64-unknown-linux-gnu
+        #   gh_runner_os: ubuntu-latest
+        #   builder: cargo
+        # - target: aarch64-unknown-linux-gnu
+        #   gh_runner_os: ubuntu-latest
+        #   builder: cross
+        # - target: x86_64-apple-darwin
+        #   gh_runner_os: macos-latest
+        #   builder: cargo
+        # - target: aarch64-apple-darwin
+        #   gh_runner_os: macos-latest
+        #   builder: cargo
         - target: x86_64-pc-windows-msvc
           gh_runner_os: windows-latest
           builder: cargo
@@ -103,52 +103,41 @@ jobs:
       if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
       run: |
         mkdir ./build
-        mv target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}
+        cp target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}
 
-    - name: Rename build file | Win
-      if: contains(matrix.target, 'win')
-      run: |
-        mkdir ./build
-        mv target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}.exe
+    - name: Look around
+      run: Get-ChildItem -Recurse .
 
-    - name: Upload build
-      uses: actions/upload-artifact@v3
-      with:
-          name: ${{ github.event.repository.name }}-${{ matrix.target}}
-          path: ./build/${{ github.event.repository.name }}*
+    # - name: Rename build file | Win
+    #   if: contains(matrix.target, 'win')
+    #   run: |
+    #     mkdir ./build
+    #     cp target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}.exe
 
-    # - name: Upload build (Linux/MacOS)
-    #   if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
+    # - name: Upload build
     #   uses: actions/upload-artifact@v3
     #   with:
     #       name: ${{ github.event.repository.name }}-${{ matrix.target}}
-    #       path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}"
+    #       path: ./build/${{ github.event.repository.name }}*
 
-    # - name: Upload build (Windows)
-    #   if: contains(matrix.target, 'win')
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #       name: ${{ github.event.repository.name }}-${{ matrix.target}}.exe
-    #       path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe"
+  # upload_artifacts:
+  #   name: Add Build Artifacts to Release
+  #   needs: [release_please, build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Setup | Artifacts
+  #       uses: actions/download-artifact@v3
 
-  upload_artifacts:
-    name: Add Build Artifacts to Release
-    needs: [release_please, build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Setup | Artifacts
-        uses: actions/download-artifact@v3
+  #     - name: Display structure of downloaded files
+  #       run: ls -R
 
-      - name: Display structure of downloaded files
-        run: ls -R
+  #     - name: Setup | Publish Release
+  #       run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup | Publish Release
-        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build | Add Artifacts to Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ${{ github.event.repository.name }}*/${{ github.event.repository.name }}*
-          tag_name: ${{ needs.release_please.outputs.tag_name }}
+  #     - name: Build | Add Artifacts to Release
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         files: ${{ github.event.repository.name }}*/${{ github.event.repository.name }}*
+  #         tag_name: ${{ needs.release_please.outputs.tag_name }}
