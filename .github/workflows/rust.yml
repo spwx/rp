@@ -117,7 +117,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
           name: ${{ github.event.repository.name }}-${{ matrix.target}}
-          path: ".build/${{ github.event.repository.name }}*"
+          path: ./build/${{ github.event.repository.name }}*
 
     # - name: Upload build (Linux/MacOS)
     #   if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
