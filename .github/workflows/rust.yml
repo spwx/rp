@@ -114,24 +114,24 @@ jobs:
           name: ${{ github.event.repository.name }}-${{ matrix.target}}.exe
           path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe"
 
-  # upload_artifacts:
-  #   name: Add Build Artifacts to Release
-  #   needs: [release_please, build]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Print tag
-  #       run: echo ${{ steps.release.outputs.tag_name }}
+  upload_artifacts:
+    name: Add Build Artifacts to Release
+    needs: [release_please, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print tag
+        run: echo ${{ steps.release.outputs.tag_name }}
 
-  #     - name: Setup | Artifacts
-  #       uses: actions/download-artifact@v3
+      - name: Setup | Artifacts
+        uses: actions/download-artifact@v3
 
-  #     - name: Setup | Publish Release
-  #       run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup | Publish Release
+        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Build | Add Artifacts to Release
-  #       uses: softprops/action-gh-release@v1
-  #       with:
-  #         files: ${{ github.event.repository.name }}*
-  #         tag_name: ${{ needs.release_please.outputs.tag_name }}
+      - name: Build | Add Artifacts to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ github.event.repository.name }}*
+          tag_name: ${{ needs.release_please.outputs.tag_name }}
