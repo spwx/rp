@@ -18,6 +18,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: rust
           draft: true
+          changelog-notes-type: github
 
   build:
     name: build-release
@@ -87,9 +88,6 @@ jobs:
     steps:
       - name: Setup | Artifacts
         uses: actions/download-artifact@v3
-
-      - name: Display structure of downloaded files
-        run: ls -R
 
       - name: Setup | Publish Release
         run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
