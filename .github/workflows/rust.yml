@@ -117,6 +117,7 @@ jobs:
   upload_artifacts:
     name: Add Build Artifacts to Release
     # needs: [release_please, build]
+    needs: build
     runs-on: ubuntu-latest
     steps:
       # - name: Print tag
