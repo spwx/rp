@@ -6,9 +6,11 @@ on:
 
 jobs:
   # this will:
-  # create/update a CHANGELOG.md
-  # update the version in Cargo.toml
-  # tag the GH commit with a version
+  # 1. analyze commit history for "conventional commits" and determine the
+  #   "Semantic Version"
+  # 2. create/update a CHANGELOG.md
+  # 3. update the version in Cargo.toml
+  # 4. tag the GH commit with the version
   release_please:
     name: Release Please
     runs-on: ubuntu-latest
