@@ -34,18 +34,18 @@ jobs:
         - target: x86_64-unknown-linux-gnu
           gh_runner_os: ubuntu-latest
           builder: cargo
-        # - target: aarch64-unknown-linux-gnu
-        #   gh_runner_os: ubuntu-latest
-        #   builder: cross
-        # - target: x86_64-apple-darwin
-        #   gh_runner_os: macos-latest
-        #   builder: cargo
-        # - target: aarch64-apple-darwin
-        #   gh_runner_os: macos-latest
-        #   builder: cargo
-        # - target: x86_64-pc-windows-msvc
-        #   gh_runner_os: windows-latest
-        #   builder: cargo
+        - target: aarch64-unknown-linux-gnu
+          gh_runner_os: ubuntu-latest
+          builder: cross
+        - target: x86_64-apple-darwin
+          gh_runner_os: macos-latest
+          builder: cargo
+        - target: aarch64-apple-darwin
+          gh_runner_os: macos-latest
+          builder: cargo
+        - target: x86_64-pc-windows-msvc
+          gh_runner_os: windows-latest
+          builder: cargo
 
     steps:
     - name: Checkout repository
@@ -112,7 +112,6 @@ jobs:
         mv target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}.exe
 
     - name: Upload build
-      if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
       uses: actions/upload-artifact@v3
       with:
           name: ${{ github.event.repository.name }}-${{ matrix.target}}
@@ -131,12 +130,6 @@ jobs:
     #   with:
     #       name: ${{ github.event.repository.name }}-${{ matrix.target}}.exe
     #       path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe"
-
-    - name: See files
-      run: ls ./build
-
-    - name: get filetype
-      run: file ./build/rp*
 
   upload_artifacts:
     name: Add Build Artifacts to Release
