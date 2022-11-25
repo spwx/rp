@@ -5,26 +5,26 @@ on:
     branches: [main]
 
 jobs:
-  # release_please:
-  #   name: Release Please
-  #   runs-on: ubuntu-latest
-  #   outputs:
-  #     release_created: ${{ steps.release.outputs.release_created }}
-  #     tag_name: ${{ steps.release.outputs.tag_name }}
-  #   steps:
-  #     - uses: google-github-actions/release-please-action@v3
-  #       id: release
-  #       with:
-  #         token: ${{ secrets.GITHUB_TOKEN }}
-  #         release-type: rust
-  #         draft: true
-  #     - name: Print tag
-  #       run: echo ${{ steps.release.outputs.tag_name }}
+  release_please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: rust
+          draft: true
+      - name: Print tag
+        run: echo ${{ steps.release.outputs.tag_name }}
 
   build:
     name: build-release
-    # needs: release_please
-    # if: ${{ needs.release_please.outputs.release_created == 'true' }}
+    needs: release_please
+    if: ${{ needs.release_please.outputs.release_created == 'true' }}
     runs-on: ${{ matrix.gh_runner_os }}
     strategy:
       # if one build fails, continue building the others
@@ -65,7 +65,7 @@ jobs:
       run: ${{ matrix.builder }} build --verbose --release --target ${{ matrix.target }}
 
     - name: Strip release binary (linux and macos)
-      if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
+      if: contains(matrix.target, 'x86_64-unknown-linux') || contains(matrix.target, 'macos')
       run: strip "target/${{ matrix.target }}/release/${{ github.event.repository.name }}"
 
     # - name: Strip release binary (arm)
@@ -105,9 +105,6 @@ jobs:
         mkdir ./build
         cp target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}
 
-    - name: Look around
-      run: Get-ChildItem -Recurse .
-
     - name: Rename build file | Win
       if: contains(matrix.target, 'win')
       run: |
@@ -120,24 +117,24 @@ jobs:
           name: ${{ github.event.repository.name }}-${{ matrix.target}}
           path: ./build/${{ github.event.repository.name }}*
 
-  # upload_artifacts:
-  #   name: Add Build Artifacts to Release
-  #   needs: [release_please, build]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Setup | Artifacts
-  #       uses: actions/download-artifact@v3
+  upload_artifacts:
+    name: Add Build Artifacts to Release
+    needs: [release_please, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup | Artifacts
+        uses: actions/download-artifact@v3
 
-  #     - name: Display structure of downloaded files
-  #       run: ls -R
+      - name: Display structure of downloaded files
+        run: ls -R
 
-  #     - name: Setup | Publish Release
-  #       run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup | Publish Release
+        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - name: Build | Add Artifacts to Release
-  #       uses: softprops/action-gh-release@v1
-  #       with:
-  #         files: ${{ github.event.repository.name }}*/${{ github.event.repository.name }}*
-  #         tag_name: ${{ needs.release_please.outputs.tag_name }}
+      - name: Build | Add Artifacts to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ github.event.repository.name }}*/${{ github.event.repository.name }}*
+          tag_name: ${{ needs.release_please.outputs.tag_name }}
