@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.17.0](https://github.com/spwx/rp/compare/v0.16.0...v0.17.0) (2022-11-25)
+
+
+### Features
+
+* **CICD:** Remove more unnecessary code ([dd68dcb](https://github.com/spwx/rp/commit/dd68dcb4d45f7bd5227975530e39759476cff136))
+* **CICD:** Remove unnecessary code ([5a766ab](https://github.com/spwx/rp/commit/5a766abf054af6e0c74ae1d76b4c006b9cc138dd))
+
+
+### Bug Fixes
+
+* **CICD:** Add some comments ([c364fb5](https://github.com/spwx/rp/commit/c364fb5bcdad60934e0d37246fbf466e4c16db02))
+
 ## [0.16.0](https://github.com/spwx/rp/compare/v0.15.0...v0.16.0) (2022-11-25)
 
 
