@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/spwx/rp/compare/v0.10.0...v0.11.0) (2022-11-25)
+
+
+### Features
+
+* 17 ([db42001](https://github.com/spwx/rp/commit/db42001dd445df96618470d27056c7ac67b32923))
+
 ## [0.10.0](https://github.com/spwx/rp/compare/v0.9.0...v0.10.0) (2022-11-25)
 
 
