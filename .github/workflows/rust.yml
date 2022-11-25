@@ -100,25 +100,44 @@ jobs:
     #       echo "ASSET=$staging.tar.gz" >> $GITHUB_ENV
     #     fi
     #
-    - name: Upload build (Linux/MacOS)
+    - name: Rename build file | Nix
+      if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
+      run: |
+        mkdir ./build
+        mv target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}
+
+    - name: Rename build file | Win
+      if: contains(matrix.target, 'win')
+      run: |
+        mkdir ./build
+        mv target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}.exe
+
+    - name: Upload build
       if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
       uses: actions/upload-artifact@v3
       with:
           name: ${{ github.event.repository.name }}-${{ matrix.target}}
-          path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}"
+          path: ".build/${{ github.event.repository.name }}*"
 
-    - name: Upload build (Windows)
-      if: contains(matrix.target, 'win')
-      uses: actions/upload-artifact@v3
-      with:
-          name: ${{ github.event.repository.name }}-${{ matrix.target}}.exe
-          path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe"
+    # - name: Upload build (Linux/MacOS)
+    #   if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #       name: ${{ github.event.repository.name }}-${{ matrix.target}}
+    #       path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}"
+
+    # - name: Upload build (Windows)
+    #   if: contains(matrix.target, 'win')
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #       name: ${{ github.event.repository.name }}-${{ matrix.target}}.exe
+    #       path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe"
 
     - name: See files
-      run: ls target/${{ matrix.target }}/release/
+      run: ls ./build
 
     - name: get filetype
-      run: file "target/${{ matrix.target }}/release/${{ github.event.repository.name }}"
+      run: file ./build/rp*
 
   upload_artifacts:
     name: Add Build Artifacts to Release
