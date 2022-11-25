@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/spwx/rp/compare/v0.3.0...v0.4.0) (2022-11-25)
+
+
+### Features
+
+* 9 ([c36005a](https://github.com/spwx/rp/commit/c36005a6293d0a0e364e26159a594b71e29020de))
+
 ## [0.3.0](https://github.com/spwx/rp/compare/v0.2.0...v0.3.0) (2022-11-25)
 
 
