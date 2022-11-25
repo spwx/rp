@@ -1,0 +1,137 @@
+name: release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release_please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: rust
+          draft: true
+      - name: Print tag
+        run: echo ${{ steps.release.outputs.tag_name }}
+
+
+  build:
+    name: build-release
+    needs: release_please
+    if: ${{ needs.release_please.outputs.release_created == 'true' }}
+    runs-on: ${{ matrix.gh_runner_os }}
+    strategy:
+      # if one build fails, continue building the others
+      fail-fast: false
+      matrix:
+        include:
+        - target: x86_64-unknown-linux-gnu
+          gh_runner_os: ubuntu-latest
+          builder: cargo
+        # - target: aarch64-unknown-linux-gnu
+        #   gh_runner_os: ubuntu-latest
+        #   builder: cross
+        # - target: x86_64-apple-darwin
+        #   gh_runner_os: macos-latest
+        #   builder: cargo
+        # - target: aarch64-apple-darwin
+        #   gh_runner_os: macos-latest
+        #   builder: cargo
+        # - target: x86_64-pc-windows-msvc
+        #   gh_runner_os: windows-latest
+        #   builder: cargo
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: stable
+        target: ${{ matrix.target }}
+
+    - name: Install Cross
+      if: matrix.builder == 'cross'
+      run: cargo install cross
+
+    - name: Build ${{ matrix.target }}
+      run: ${{ matrix.builder }} build --verbose --release --target ${{ matrix.target }}
+
+    - name: Strip release binary (linux and macos)
+      if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
+      run: strip "target/${{ matrix.target }}/release/${{ github.event.repository.name }}"
+
+    # - name: Strip release binary (arm)
+    #   if: matrix.build == 'linux-arm'
+    #   run: |
+    #     docker run --rm -v \
+    #       "$PWD/target:/target:Z" \
+    #       rustembedded/cross:arm-unknown-linux-gnueabihf \
+    #       arm-linux-gnueabihf-strip \
+    #       /target/arm-unknown-linux-gnueabihf/release/rg
+    #
+    # - name: Build archive
+    #   shell: bash
+    #   run: |
+    #     outdir="$(ci/cargo-out-dir "${{ env.TARGET_DIR }}")"
+    #     staging="hello-${{ needs.create-release.outputs.hello_version }}-${{ matrix.target }}"
+    #     mkdir -p "$staging"/{complete,doc}
+    #     cp {README.md,COPYING,UNLICENSE,LICENSE-MIT} "$staging/"
+    #     cp {CHANGELOG.md,FAQ.md,GUIDE.md} "$staging/doc/"
+    #     cp "$outdir"/{hello.bash,hello.fish,_hello.ps1} "$staging/complete/"
+    #     cp complete/_rg "$staging/complete/"
+    #     if [ "${{ matrix.os }}" = "windows-2022" ]; then
+    #       cp "target/${{ matrix.target }}/release/hello.exe" "$staging/"
+    #       7z a "$staging.zip" "$staging"
+    #       echo "ASSET=$staging.zip" >> $GITHUB_ENV
+    #     else
+    #       # The man page is only generated on Unix systems. ¯\_(ツ)_/¯
+    #       cp "$outdir"/hello.1 "$staging/doc/"
+    #       cp "target/${{ matrix.target }}/release/rg" "$staging/"
+    #       tar czf "$staging.tar.gz" "$staging"
+    #       echo "ASSET=$staging.tar.gz" >> $GITHUB_ENV
+    #     fi
+    #
+    - name: Upload build (Linux/MacOS)
+      if: contains(matrix.target, 'linux') || contains(matrix.target, 'macos')
+      uses: actions/upload-artifact@v3
+      with:
+          name: ${{ github.event.repository.name }}-${{ matrix.target}}
+          path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}"
+
+    - name: Upload build (Windows)
+      if: contains(matrix.target, 'win')
+      uses: actions/upload-artifact@v3
+      with:
+          name: ${{ github.event.repository.name }}-${{ matrix.target}}.exe
+          path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe"
+
+  # upload_artifacts:
+  #   name: Add Build Artifacts to Release
+  #   needs: [release_please, build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Print tag
+  #       run: echo ${{ steps.release.outputs.tag_name }}
+
+  #     - name: Setup | Artifacts
+  #       uses: actions/download-artifact@v3
+
+  #     - name: Setup | Publish Release
+  #       run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  #     - name: Build | Add Artifacts to Release
+  #       uses: softprops/action-gh-release@v1
+  #       with:
+  #         files: ${{ github.event.repository.name }}*
+  #         tag_name: ${{ needs.release_please.outputs.tag_name }}
