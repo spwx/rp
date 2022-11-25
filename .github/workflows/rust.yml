@@ -18,7 +18,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: rust
           draft: true
-          changelog-notes-type: github
 
   build:
     name: build-release
