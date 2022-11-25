@@ -108,17 +108,17 @@ jobs:
     - name: Look around
       run: Get-ChildItem -Recurse .
 
-    # - name: Rename build file | Win
-    #   if: contains(matrix.target, 'win')
-    #   run: |
-    #     mkdir ./build
-    #     cp target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}.exe
+    - name: Rename build file | Win
+      if: contains(matrix.target, 'win')
+      run: |
+        mkdir ./build
+        cp target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe ./build/${{ github.event.repository.name }}-${{ matrix.target}}.exe
 
-    # - name: Upload build
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #       name: ${{ github.event.repository.name }}-${{ matrix.target}}
-    #       path: ./build/${{ github.event.repository.name }}*
+    - name: Upload build
+      uses: actions/upload-artifact@v3
+      with:
+          name: ${{ github.event.repository.name }}-${{ matrix.target}}
+          path: ./build/${{ github.event.repository.name }}*
 
   # upload_artifacts:
   #   name: Add Build Artifacts to Release
