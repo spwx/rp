@@ -33,7 +33,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: rust
-          # draft: true
 
   build:
     name: build-release
@@ -109,9 +108,3 @@ jobs:
         with:
           files: ${{ github.event.repository.name }}*/${{ github.event.repository.name }}*
           tag_name: ${{ needs.release_please.outputs.tag_name }}
-
-      # - name: Setup | Publish Release
-      #   # run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
-      #   run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
