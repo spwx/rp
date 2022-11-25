@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/spwx/rp/compare/v0.6.0...v0.7.0) (2022-11-25)
+
+
+### Features
+
+* 13 ([dec72f8](https://github.com/spwx/rp/commit/dec72f8d3b86be891ecfb381c5a3c4ec9d4db4bc))
+
 ## [0.6.0](https://github.com/spwx/rp/compare/v0.5.0...v0.6.0) (2022-11-25)
 
 
