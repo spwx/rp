@@ -114,6 +114,12 @@ jobs:
           name: ${{ github.event.repository.name }}-${{ matrix.target}}.exe
           path: "target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe"
 
+    - name: See files
+      run: ls target/${{ matrix.target }}/release/
+
+    - name: get filetype
+      run: file "target/${{ matrix.target }}/release/${{ github.event.repository.name }}"
+
   upload_artifacts:
     name: Add Build Artifacts to Release
     # needs: [release_please, build]
