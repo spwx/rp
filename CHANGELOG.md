@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/spwx/rp/compare/v0.17.0...v0.18.0) (2022-11-28)
+
+
+### Features
+
+* **CICD:** Clean up comments ([2bcbb62](https://github.com/spwx/rp/commit/2bcbb625ab00ee2f3f3bcc873f7de7679b913ac8))
+
 ## [0.17.0](https://github.com/spwx/rp/compare/v0.16.0...v0.17.0) (2022-11-25)
 
 
