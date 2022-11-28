@@ -1,5 +1,9 @@
-# To use this:
-# 1. place this file in .github/workflows/release.yml
+# Requirement:
+# - Cargo project which produces a single binary
+# - The binary must have the same name as the repository
+#
+# Instructions:
+# 1. Place this file in .github/workflows/release.yml
 # 2. Make commits to the main branch
 # 3. When ready to release, merge the PR
 #
@@ -76,33 +80,33 @@ jobs:
     - name: Build ${{ matrix.target }}
       run: ${{ matrix.builder }} build --verbose --release --target ${{ matrix.target }}
 
-    - name: Rename Executable | Nix
+    - name: Rename Executable - Nix
       if: contains(matrix.target, 'linux') || contains(matrix.target, 'darwin')
       run: |
         mkdir ./build
         cp target/${{ matrix.target }}/release/${{ github.event.repository.name }} ./build/${{ github.event.repository.name }}-${{ matrix.target}}
 
-    - name: Rename build file | Win
+    - name: Rename Executable - Win
       if: contains(matrix.target, 'windows')
       run: |
         mkdir ./build
         cp target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe ./build/${{ github.event.repository.name }}-${{ matrix.target}}.exe
 
-    - name: Upload build
+    - name: Upload Artifacts
       uses: actions/upload-artifact@v3
       with:
           name: ${{ github.event.repository.name }}-${{ matrix.target}}
           path: ./build/${{ github.event.repository.name }}*
 
-  upload_artifacts:
-    name: Add Build Artifacts to Release
+  add_artifacts_to_release:
+    name: Add Artifacts to Release
     needs: [release_please, build]
     runs-on: ubuntu-latest
     steps:
-      - name: Setup | Artifacts
+      - name: Download Artifacts
         uses: actions/download-artifact@v3
 
-      - name: Build | Add Artifacts to Release
+      - name: Add Artifacts to Release
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ github.event.repository.name }}*/${{ github.event.repository.name }}*
